@@ -1,3 +1,5 @@
+/* src/pages/Prelaunch/Prelaunch.scss */
+
 /* Palette (client colors) */
 :root {
   --espresso: #5b4a3e;
@@ -116,14 +118,96 @@
   border: 1px solid rgba(246, 242, 235, 0.12);
 }
 
-.prelaunch__media-img {
+/* Carousel */
+.prelaunch__carousel {
+  position: relative;
+}
+
+.prelaunch__frame {
+  position: relative;
   width: 100%;
   height: 320px;
-  display: block;
-  object-fit: cover;
 
   @media (min-width: 900px) {
     height: 380px;
+  }
+}
+
+.prelaunch__media-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.01);
+  transition: opacity 320ms ease, transform 520ms ease;
+}
+
+.prelaunch__media-img.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* arrows */
+.prelaunch__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(246, 242, 235, 0.25);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--veil);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+  z-index: 2;
+
+  &:hover {
+    transform: translateY(-50%) scale(1.03);
+    background: rgba(0, 0, 0, 0.35);
+    border-color: rgba(246, 242, 235, 0.45);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(203, 191, 175, 0.35);
+    outline-offset: 3px;
+  }
+}
+
+.prelaunch__nav--left {
+  left: 10px;
+}
+
+.prelaunch__nav--right {
+  right: 10px;
+}
+
+/* dots */
+.prelaunch__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.prelaunch__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(246, 242, 235, 0.45);
+  background: rgba(246, 242, 235, 0.12);
+  cursor: pointer;
+
+  &.is-active {
+    background: rgba(246, 242, 235, 0.8);
   }
 }
 
@@ -226,7 +310,7 @@
   opacity: 0.95;
 }
 
-/* Thumbnail strip */
+/* Thumbnails */
 .prelaunch__thumbs {
   margin-top: 1.25rem;
   display: grid;
@@ -234,6 +318,29 @@
   gap: 0.5rem;
   border-top: 1px solid rgba(246, 242, 235, 0.12);
   padding-top: 1rem;
+}
+
+.prelaunch__thumbbtn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: transform 140ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &.is-active .prelaunch__thumb {
+    opacity: 1;
+    border-color: rgba(246, 242, 235, 0.45);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(203, 191, 175, 0.35);
+    outline-offset: 3px;
+  }
 }
 
 .prelaunch__thumb {
