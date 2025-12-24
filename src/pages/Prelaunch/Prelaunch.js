@@ -63,11 +63,6 @@ const Prelaunch = () => {
     setShowWaitlist(true);
   };
 
-  const handleCancelWaitlist = () => {
-    setShowWaitlist(false);
-    setEmail("");
-  };
-
   const handleJoinWaitlist = async (e) => {
     e.preventDefault();
     if (!email.trim()) return;
@@ -147,21 +142,22 @@ const Prelaunch = () => {
             <h1 className="prelaunch__title">You came to the right place.</h1>
 
             <p className="prelaunch__copy">
-              Early access. Launch updates.
-              <br />
-              Exclusive previews.
+              Early access. Launch updates. Exclusive previews.
             </p>
 
             {!showWaitlist ? (
-              <button className="prelaunch__cta" onClick={handleReachOut} type="button">
+              <button
+                className="prelaunch__cta"
+                onClick={handleReachOut}
+                type="button"
+              >
                 REACH OUT
               </button>
             ) : (
-              <form className="prelaunch__waitlist" onSubmit={handleJoinWaitlist}>
-                <label className="prelaunch__waitlist-label" htmlFor="waitlistEmail">
-                  Email address
-                </label>
-
+              <form
+                className="prelaunch__waitlist"
+                onSubmit={handleJoinWaitlist}
+              >
                 <div className="prelaunch__waitlist-row">
                   <input
                     ref={emailRef}
@@ -178,14 +174,6 @@ const Prelaunch = () => {
                     JOIN WAITLIST
                   </button>
                 </div>
-
-                <button
-                  type="button"
-                  className="prelaunch__waitlist-cancel"
-                  onClick={handleCancelWaitlist}
-                >
-                  CANCEL
-                </button>
               </form>
             )}
 
