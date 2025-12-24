@@ -171,7 +171,7 @@ const Prelaunch = () => {
                   />
 
                   <button className="prelaunch__cta" type="submit">
-                    JOIN WAITLIST
+                    Join Waitlist
                   </button>
                 </div>
               </form>
