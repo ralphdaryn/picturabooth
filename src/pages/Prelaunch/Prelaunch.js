@@ -19,16 +19,12 @@ const Prelaunch = () => {
 
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-
-  // Waitlist UI
   const [showWaitlist, setShowWaitlist] = useState(false);
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
-  const [errorMsg, setErrorMsg] = useState("");
-  const emailRef = useRef(null);
 
-  // Prevent rapid double clicks / autoplay overlap
+  const emailRef = useRef(null);
   const lockRef = useRef(false);
+
   const lock = () => {
     lockRef.current = true;
     setTimeout(() => (lockRef.current = false), 250);
@@ -46,77 +42,48 @@ const Prelaunch = () => {
     setActive((i) => (i + 1) % slides.length);
   }, [slides.length]);
 
-  // Autoplay (pause on hover)
   useEffect(() => {
     if (isPaused) return;
     const id = setInterval(() => {
-      if (!lockRef.current) setActive((i) => (i + 1) % slides.length);
+      if (!lockRef.current) {
+        setActive((i) => (i + 1) % slides.length);
+      }
     }, 3500);
 
     return () => clearInterval(id);
   }, [isPaused, slides.length]);
 
-  // Focus input when waitlist opens
   useEffect(() => {
-    if (showWaitlist) setTimeout(() => emailRef.current?.focus(), 0);
+    if (showWaitlist) {
+      setTimeout(() => emailRef.current?.focus(), 0);
+    }
   }, [showWaitlist]);
-
-  const isValidEmail = (value) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
   const handleReachOut = () => {
     setShowWaitlist(true);
-    setStatus("idle");
-    setErrorMsg("");
-  };
-
-  const handleJoinWaitlist = async (e) => {
-    e.preventDefault();
-
-    const trimmed = email.trim();
-    if (!trimmed) {
-      setStatus("error");
-      setErrorMsg("Please enter your email.");
-      return;
-    }
-
-    if (!isValidEmail(trimmed)) {
-      setStatus("error");
-      setErrorMsg("Please enter a valid email address.");
-      return;
-    }
-
-    try {
-      setStatus("loading");
-      setErrorMsg("");
-
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setStatus("error");
-        setErrorMsg(data?.error || "Something went wrong.");
-        return;
-      }
-
-      setStatus("success");
-      setEmail("");
-    } catch {
-      setStatus("error");
-      setErrorMsg("Network error. Please try again.");
-    }
   };
 
   const handleCancelWaitlist = () => {
     setShowWaitlist(false);
     setEmail("");
-    setStatus("idle");
-    setErrorMsg("");
+  };
+
+  const handleJoinWaitlist = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    try {
+      await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      setEmail("");
+      setShowWaitlist(false);
+    } catch {
+      // silently fail (keeping UI simple)
+    }
   };
 
   const current = slides[active];
@@ -124,49 +91,52 @@ const Prelaunch = () => {
   return (
     <main className="prelaunch">
       <section className="prelaunch__card">
-        {/* Brand */}
-        <div className="prelaunch__brand">
-          <div className="prelaunch__brandmark" aria-hidden="true">
-            <div className="prelaunch__mark" />
-          </div>
-
-          <div className="prelaunch__brandtext">
-            <p className="prelaunch__brandname">PICTURA</p>
-            <p className="prelaunch__brandsub">Momento Capta</p>
-          </div>
-        </div>
-
         <div className="prelaunch__layout">
-          {/* Carousel */}
+          {/* Media */}
           <div
             className="prelaunch__media"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            <button
-              type="button"
-              className="prelaunch__nav prelaunch__nav--left"
-              onClick={prev}
-              aria-label="Previous image"
-            >
-              ‹
-            </button>
+            <div className="prelaunch__frame">
+              <button
+                className="prelaunch__nav prelaunch__nav--left"
+                onClick={prev}
+                aria-label="Previous image"
+              >
+                ‹
+              </button>
 
-            <img
-              className="prelaunch__media-img prelaunch__media-img--single"
-              src={current.src}
-              alt={current.alt}
-              loading="eager"
-            />
+              <img
+                src={current.src}
+                alt={current.alt}
+                className="prelaunch__media-img prelaunch__media-img--single"
+              />
 
-            <button
-              type="button"
-              className="prelaunch__nav prelaunch__nav--right"
-              onClick={next}
-              aria-label="Next image"
-            >
-              ›
-            </button>
+              <button
+                className="prelaunch__nav prelaunch__nav--right"
+                onClick={next}
+                aria-label="Next image"
+              >
+                ›
+              </button>
+            </div>
+
+            {/* Thumbnails */}
+            <div className="prelaunch__thumbs">
+              {slides.map((slide, index) => (
+                <button
+                  key={slide.src}
+                  className={`prelaunch__thumbbtn ${
+                    index === active ? "is-active" : ""
+                  }`}
+                  onClick={() => setActive(index)}
+                  aria-label={`View image ${index + 1}`}
+                >
+                  <img src={slide.src} alt="" className="prelaunch__thumb" />
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Content */}
@@ -180,61 +150,71 @@ const Prelaunch = () => {
             </p>
 
             {!showWaitlist ? (
-              <button className="prelaunch__cta" type="button" onClick={handleReachOut}>
+              <button className="prelaunch__cta" onClick={handleReachOut}>
                 REACH OUT
               </button>
             ) : (
-              <form className="prelaunch__waitlist" onSubmit={handleJoinWaitlist}>
-                {status !== "success" ? (
-                  <>
-                    <label className="prelaunch__waitlist-label" htmlFor="waitlistEmail">
-                      Email address
-                    </label>
+              <form
+                className="prelaunch__waitlist"
+                onSubmit={handleJoinWaitlist}
+              >
+                <label className="prelaunch__waitlist-label">
+                  Email address
+                </label>
 
-                    <div className="prelaunch__waitlist-row">
-                      <input
-                        ref={emailRef}
-                        id="waitlistEmail"
-                        className="prelaunch__waitlist-input"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        autoComplete="email"
-                        disabled={status === "loading"}
-                        aria-invalid={status === "error"}
-                        aria-describedby={status === "error" ? "waitlistError" : undefined}
-                      />
+                <div className="prelaunch__waitlist-row">
+                  <input
+                    ref={emailRef}
+                    className="prelaunch__waitlist-input"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
 
-                      <button className="prelaunch__cta" type="submit" disabled={status === "loading"}>
-                        {status === "loading" ? "SENDING..." : "JOIN THE WAITLIST"}
-                      </button>
-                    </div>
+                  <button className="prelaunch__cta" type="submit">
+                    JOIN WAITLIST
+                  </button>
+                </div>
 
-                    <div className="prelaunch__waitlist-meta">
-                      <button
-                        type="button"
-                        className="prelaunch__waitlist-cancel"
-                        onClick={handleCancelWaitlist}
-                        disabled={status === "loading"}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-
-                    {status === "error" && (
-                      <p className="prelaunch__waitlist-error" id="waitlistError">
-                        {errorMsg}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <div className="prelaunch__waitlist-success" role="status" aria-live="polite">
-                    ✅ You’re on the list! We’ll be in touch.
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className="prelaunch__waitlist-cancel"
+                  onClick={handleCancelWaitlist}
+                >
+                  Cancel
+                </button>
               </form>
             )}
+
+            {/* Social */}
+            <div className="prelaunch__social">
+              <p className="prelaunch__social-label">Follow us</p>
+
+              <div className="prelaunch__social-row">
+                <a
+                  href="https://instagram.com/picturabooth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="prelaunch__social-circle"
+                >
+                  <img
+                    src="/pictura-logo.svg"
+                    alt="Pictura Booth logo"
+                    className="prelaunch__social-logo"
+                  />
+                </a>
+
+                <a
+                  href="https://instagram.com/picturabooth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="prelaunch__social-handle"
+                >
+                  @picturabooth
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
