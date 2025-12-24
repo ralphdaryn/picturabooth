@@ -103,6 +103,7 @@ const Prelaunch = () => {
                 className="prelaunch__nav prelaunch__nav--left"
                 onClick={prev}
                 aria-label="Previous image"
+                type="button"
               >
                 ‹
               </button>
@@ -117,6 +118,7 @@ const Prelaunch = () => {
                 className="prelaunch__nav prelaunch__nav--right"
                 onClick={next}
                 aria-label="Next image"
+                type="button"
               >
                 ›
               </button>
@@ -127,6 +129,7 @@ const Prelaunch = () => {
               {slides.map((slide, index) => (
                 <button
                   key={slide.src}
+                  type="button"
                   className={`prelaunch__thumbbtn ${
                     index === active ? "is-active" : ""
                   }`}
@@ -150,26 +153,25 @@ const Prelaunch = () => {
             </p>
 
             {!showWaitlist ? (
-              <button className="prelaunch__cta" onClick={handleReachOut}>
+              <button className="prelaunch__cta" onClick={handleReachOut} type="button">
                 REACH OUT
               </button>
             ) : (
-              <form
-                className="prelaunch__waitlist"
-                onSubmit={handleJoinWaitlist}
-              >
-                <label className="prelaunch__waitlist-label">
+              <form className="prelaunch__waitlist" onSubmit={handleJoinWaitlist}>
+                <label className="prelaunch__waitlist-label" htmlFor="waitlistEmail">
                   Email address
                 </label>
 
                 <div className="prelaunch__waitlist-row">
                   <input
                     ref={emailRef}
+                    id="waitlistEmail"
                     className="prelaunch__waitlist-input"
                     type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
                   />
 
                   <button className="prelaunch__cta" type="submit">
@@ -182,7 +184,7 @@ const Prelaunch = () => {
                   className="prelaunch__waitlist-cancel"
                   onClick={handleCancelWaitlist}
                 >
-                  Cancel
+                  CANCEL
                 </button>
               </form>
             )}
@@ -197,6 +199,7 @@ const Prelaunch = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="prelaunch__social-circle"
+                  aria-label="Follow Pictura Booth on Instagram"
                 >
                   <img
                     src="/pictura-logo.svg"
