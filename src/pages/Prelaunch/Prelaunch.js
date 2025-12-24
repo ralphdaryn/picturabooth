@@ -20,10 +20,10 @@ const Prelaunch = () => {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Waitlist UI states
+  // Waitlist UI
   const [showWaitlist, setShowWaitlist] = useState(false);
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("idle"); // idle | success | error
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState("");
   const emailRef = useRef(null);
 
@@ -31,7 +31,7 @@ const Prelaunch = () => {
   const lockRef = useRef(false);
   const lock = () => {
     lockRef.current = true;
-    window.setTimeout(() => (lockRef.current = false), 250);
+    setTimeout(() => (lockRef.current = false), 250);
   };
 
   const prev = useCallback(() => {
@@ -46,56 +46,31 @@ const Prelaunch = () => {
     setActive((i) => (i + 1) % slides.length);
   }, [slides.length]);
 
-  const goTo = useCallback((idx) => {
-    if (lockRef.current) return;
-    lock();
-    setActive(idx);
-  }, []);
-
   // Autoplay (pause on hover)
   useEffect(() => {
     if (isPaused) return;
-
-    const id = window.setInterval(() => {
-      if (!lockRef.current) {
-        setActive((i) => (i + 1) % slides.length);
-      }
+    const id = setInterval(() => {
+      if (!lockRef.current) setActive((i) => (i + 1) % slides.length);
     }, 3500);
 
-    return () => window.clearInterval(id);
+    return () => clearInterval(id);
   }, [isPaused, slides.length]);
-
-  // Keyboard support for carousel arrows
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "ArrowLeft") prev();
-      if (e.key === "ArrowRight") next();
-    };
-
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [prev, next]);
 
   // Focus input when waitlist opens
   useEffect(() => {
-    if (showWaitlist) {
-      window.setTimeout(() => emailRef.current?.focus(), 0);
-    }
+    if (showWaitlist) setTimeout(() => emailRef.current?.focus(), 0);
   }, [showWaitlist]);
 
-  const current = slides[active];
+  const isValidEmail = (value) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
   const handleReachOut = () => {
+    setShowWaitlist(true);
     setStatus("idle");
     setErrorMsg("");
-    setShowWaitlist(true);
   };
 
-  const isValidEmail = (value) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-  };
-
-  const handleJoinWaitlist = (e) => {
+  const handleJoinWaitlist = async (e) => {
     e.preventDefault();
 
     const trimmed = email.trim();
@@ -111,17 +86,40 @@ const Prelaunch = () => {
       return;
     }
 
-    setStatus("success");
-    setErrorMsg("");
-    setEmail("");
+    try {
+      setStatus("loading");
+      setErrorMsg("");
+
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setStatus("error");
+        setErrorMsg(data?.error || "Something went wrong.");
+        return;
+      }
+
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+      setErrorMsg("Network error. Please try again.");
+    }
   };
 
   const handleCancelWaitlist = () => {
     setShowWaitlist(false);
+    setEmail("");
     setStatus("idle");
     setErrorMsg("");
-    setEmail("");
   };
+
+  const current = slides[active];
 
   return (
     <main className="prelaunch">
@@ -138,7 +136,6 @@ const Prelaunch = () => {
           </div>
         </div>
 
-        {/* Layout */}
         <div className="prelaunch__layout">
           {/* Carousel */}
           <div
@@ -146,57 +143,36 @@ const Prelaunch = () => {
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            <div className="prelaunch__carousel" aria-roledescription="carousel">
-              <button
-                type="button"
-                className="prelaunch__nav prelaunch__nav--left"
-                onClick={prev}
-                aria-label="Previous image"
-              >
-                ‹
-              </button>
+            <button
+              type="button"
+              className="prelaunch__nav prelaunch__nav--left"
+              onClick={prev}
+              aria-label="Previous image"
+            >
+              ‹
+            </button>
 
-              <div className="prelaunch__frame">
-                <img
-                  key={current.src}
-                  className="prelaunch__media-img prelaunch__media-img--single"
-                  src={current.src}
-                  alt={current.alt}
-                  loading="eager"
-                />
-              </div>
+            <img
+              className="prelaunch__media-img prelaunch__media-img--single"
+              src={current.src}
+              alt={current.alt}
+              loading="eager"
+            />
 
-              <button
-                type="button"
-                className="prelaunch__nav prelaunch__nav--right"
-                onClick={next}
-                aria-label="Next image"
-              >
-                ›
-              </button>
-
-              <div className="prelaunch__dots" aria-label="Slides">
-                {slides.map((_, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    className={`prelaunch__dot ${
-                      idx === active ? "is-active" : ""
-                    }`}
-                    onClick={() => goTo(idx)}
-                    aria-label={`Go to slide ${idx + 1}`}
-                    aria-pressed={idx === active}
-                  />
-                ))}
-              </div>
-            </div>
+            <button
+              type="button"
+              className="prelaunch__nav prelaunch__nav--right"
+              onClick={next}
+              aria-label="Next image"
+            >
+              ›
+            </button>
           </div>
 
           {/* Content */}
           <div className="prelaunch__content">
             <h1 className="prelaunch__title">You came to the right place.</h1>
 
-            {/* ✅ SHORTER, MORE CLICKABLE COPY */}
             <p className="prelaunch__copy">
               Early access. Launch updates.
               <br />
@@ -204,21 +180,14 @@ const Prelaunch = () => {
             </p>
 
             {!showWaitlist ? (
-              <button
-                className="prelaunch__cta"
-                type="button"
-                onClick={handleReachOut}
-              >
+              <button className="prelaunch__cta" type="button" onClick={handleReachOut}>
                 REACH OUT
               </button>
             ) : (
               <form className="prelaunch__waitlist" onSubmit={handleJoinWaitlist}>
                 {status !== "success" ? (
                   <>
-                    <label
-                      className="prelaunch__waitlist-label"
-                      htmlFor="waitlistEmail"
-                    >
+                    <label className="prelaunch__waitlist-label" htmlFor="waitlistEmail">
                       Email address
                     </label>
 
@@ -228,18 +197,17 @@ const Prelaunch = () => {
                         id="waitlistEmail"
                         className="prelaunch__waitlist-input"
                         type="email"
+                        placeholder="Enter your email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
                         autoComplete="email"
+                        disabled={status === "loading"}
                         aria-invalid={status === "error"}
-                        aria-describedby={
-                          status === "error" ? "waitlistError" : undefined
-                        }
+                        aria-describedby={status === "error" ? "waitlistError" : undefined}
                       />
 
-                      <button className="prelaunch__cta" type="submit">
-                        JOIN THE WAITLIST
+                      <button className="prelaunch__cta" type="submit" disabled={status === "loading"}>
+                        {status === "loading" ? "SENDING..." : "JOIN THE WAITLIST"}
                       </button>
                     </div>
 
@@ -248,6 +216,7 @@ const Prelaunch = () => {
                         type="button"
                         className="prelaunch__waitlist-cancel"
                         onClick={handleCancelWaitlist}
+                        disabled={status === "loading"}
                       >
                         Cancel
                       </button>
@@ -260,50 +229,13 @@ const Prelaunch = () => {
                     )}
                   </>
                 ) : (
-                  <div
-                    className="prelaunch__waitlist-success"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    ✅ You’re on the list! We’ll email you when PICTURA launches.
+                  <div className="prelaunch__waitlist-success" role="status" aria-live="polite">
+                    ✅ You’re on the list! We’ll be in touch.
                   </div>
                 )}
               </form>
             )}
-
-            <div className="prelaunch__social">
-              <p className="prelaunch__social-label">Get Social</p>
-
-              <a
-                className="prelaunch__social-link"
-                href="https://instagram.com/"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Instagram"
-              >
-                <span className="prelaunch__ig" aria-hidden="true">
-                  ◎
-                </span>
-              </a>
-            </div>
           </div>
-        </div>
-
-        {/* Thumbnails */}
-        <div className="prelaunch__thumbs" aria-label="Preview images">
-          {slides.map((s, idx) => (
-            <button
-              key={s.alt}
-              type="button"
-              className={`prelaunch__thumbbtn ${
-                idx === active ? "is-active" : ""
-              }`}
-              onClick={() => goTo(idx)}
-              aria-label={`Select preview ${idx + 1}`}
-            >
-              <img className="prelaunch__thumb" src={s.src} alt={s.alt} />
-            </button>
-          ))}
         </div>
       </section>
     </main>
