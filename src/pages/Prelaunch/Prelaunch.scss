@@ -1,5 +1,5 @@
 :root {
-  --espresso: #5b4c3d;
+  --espresso: #5c4c3d; /* ✅ updated to your color */
   --shadow: #8a8077;
   --oat: #cbbfaf;
   --ivory: #e8ded4;
@@ -12,6 +12,7 @@
   place-items: start center;
   padding: 2rem 1.25rem;
 
+  /* ✅ whole page background */
   background: var(--espresso);
   color: var(--veil);
 
@@ -28,9 +29,11 @@
   border-radius: 18px;
   padding: 1.25rem;
 
-  background: rgba(0, 0, 0, 0.08);
+  /* ✅ match the page bg so it feels like one solid color */
+  background: var(--espresso);
+
   border: none;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
 
   /* ✅ DESKTOP */
   @media (min-width: 1280px) {
@@ -53,9 +56,10 @@
   height: auto;
   display: block;
   border-radius: 16px;
-  border: 1px solid rgba(246, 242, 235, 0.12);
-  background: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 /* Layout */
@@ -81,8 +85,11 @@
   position: relative;
   border-radius: 18px;
   overflow: hidden;
-  background: rgba(246, 242, 235, 0.06);
-  border: 1px solid rgba(246, 242, 235, 0.12);
+
+  /* ✅ match page bg */
+  background: var(--espresso);
+
+  border: none;
 }
 
 .prelaunch__frame {

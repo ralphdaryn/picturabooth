@@ -66,7 +66,11 @@ const Prelaunch = () => {
             </p>
 
             {!showWaitlist ? (
-              <button className="prelaunch__cta" onClick={handleReachOut} type="button">
+              <button
+                className="prelaunch__cta"
+                onClick={handleReachOut}
+                type="button"
+              >
                 REACH OUT
               </button>
             ) : (
