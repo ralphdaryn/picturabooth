@@ -1,6 +1,15 @@
 @font-face {
-  font-family: "EBGaramond";
-  src: url("../../assets/font/EBGaramond-Regular.ttf") format("truetype");
-  font-weight: 400;
+  font-family: "NotoSerifDisplayCondensed";
+  src: url("../../assets/font/NotoSerifDisplay_Condensed-Light.ttf")
+    format("truetype");
+  font-weight: 300; /* ✅ Light */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "NotoSerifDisplayRegular";
+  src: url("../../assets/font/NotoSerifDisplay_Condensed-Regular.ttf")
+    format("truetype");
+  font-weight: 400; /* ✅ Regular */
   font-style: normal;
 }

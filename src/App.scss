@@ -1,3 +1,4 @@
 /* 👇 Put @use first */
 @use "./styles/partials/colors";   /* emits :root CSS variables */
 @use "./styles/partials/globals";  /* base/reset + mixins */
+@use "./styles/partials/fonts";

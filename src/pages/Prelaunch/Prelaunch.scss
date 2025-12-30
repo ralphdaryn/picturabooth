@@ -135,10 +135,13 @@
 }
 
 .prelaunch__title {
-  font-family: Georgia, serif;
+  /* ✅ USE YOUR NEW FONT HERE */
+  font-family: "NotoSerifDisplayCondensed", Georgia, serif;
+  font-weight: 800;
   font-size: 2.6rem;
   margin: 0;
   line-height: 1.05;
+  color: #e2ded6;
 
   /* ✅ TABLET */
   @media (min-width: 768px) {
@@ -152,9 +155,11 @@
 }
 
 .prelaunch__copy {
+  font-family: "NotoSerifDisplayRegularCondensed", Georgia, serif;
   font-size: 0.95rem;
-  color: rgba(246, 242, 235, 0.78);
+  color: #e2ded6;
   line-height: 1.5;
+  font-weight:400;
 
   /* ✅ DESKTOP */
   @media (min-width: 1280px) {
@@ -173,6 +178,7 @@
   letter-spacing: 0.12em;
   cursor: pointer;
   transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+  font-family: "NotoSerifDisplayRegular", Georgia, serif;
 
   &:hover {
     transform: translateY(-1px);
@@ -240,6 +246,8 @@
 .prelaunch__social-label {
   font-size: 0.95rem;
   color: rgba(246, 242, 235, 0.78);
+  font-family: "NotoSerifDisplayRegular", Georgia, serif;
+  font-weight: 700;
 }
 
 .prelaunch__social-row {
@@ -272,6 +280,7 @@
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: opacity 140ms ease, border-color 140ms ease;
+  font-family: "NotoSerifDisplayRegular", Georgia, serif;
 
   &:hover {
     opacity: 0.8;
