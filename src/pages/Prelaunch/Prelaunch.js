@@ -120,7 +120,7 @@ const Prelaunch = () => {
                     type="submit"
                     disabled={status === "sending"}
                   >
-                    {status === "sending" ? "Sending..." : "Join Waitlist"}
+                    {status === "sending" ? "Sending..." : "Join Waitlist For a Chance To Win!"}
                   </button>
                 </div>
 
